@@ -15,10 +15,20 @@ function App() {
           headers: { 'Content-Type': 'application/json' }
         });
         if (response.ok) {
-          setMovies([...movies, movie]);
+          const movieFromServer = await response.json();
+          setMovies([...movies, movieFromServer]);
           setAddingMovie(false);
         }
       }
+
+    async function handleDeleteMovie(movie) {
+        const response = await fetch(`/movies/${movie.id}`, {
+            method: 'DELETE',
+        });
+        if (response.ok) {
+            setMovies(movies.filter(m => m !== movie));
+        }
+    }
 
     useEffect(() => {
         const fetchMovies = async () => {
@@ -37,7 +47,7 @@ function App() {
             {movies.length === 0
                 ? <p>No movies yet. Maybe add something?</p>
                 : <MoviesList movies={movies}
-                              onDeleteMovie={(movie) => setMovies(movies.filter(m => m !== movie))}
+                              onDeleteMovie={handleDeleteMovie}
                 />}
             {addingMovie
                 ? <MovieForm onMovieSubmit={handleAddMovie}
