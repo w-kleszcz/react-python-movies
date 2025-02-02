@@ -43,8 +43,22 @@ function App() {
         });
         if (response.ok) {
           const actorFromServer = await response.json();
+
+          const movieId = actor.movieId;
+          if (movieId) {
+              fetch(`/movies/${movieId}/actor/${actorFromServer.id}`, {
+                  method: "POST",
+              });
+          }
+
           setActors([...actors, actorFromServer]);
           setAddingActor(false);
+          // also refresh movies list
+          const response_movies = await fetch(`/movies`);
+          if (response_movies.ok) {
+                const movies = await response_movies.json();
+                setMovies(movies);
+          }
         }
       }
 
@@ -54,6 +68,13 @@ function App() {
         });
         if (response.ok) {
             setActors(actors.filter(a => a !== actor));
+
+            // also refresh movies list
+            const response_movies = await fetch(`/movies`);
+            if (response_movies.ok) {
+                const movies = await response_movies.json();
+                setMovies(movies);
+          }
         }
     }
 
@@ -102,6 +123,7 @@ function App() {
             {addingActor
                 ? <ActorForm onActorSubmit={handleAddActor}
                              buttonLabel="Add an actor"
+                             movies={movies}
                 />
                 : <button onClick={() => setAddingActor(true)}>Add an actor</button>}
 

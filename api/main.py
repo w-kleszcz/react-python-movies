@@ -40,6 +40,7 @@ def get_movie(movie_id: int):
     db_movie = models.Movie.filter(models.Movie.id == movie_id).first()
     if db_movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
+    models.ActorMovie.delete().where(models.ActorMovie.movie_id == movie_id).execute()
     db_movie.delete_instance()
     return db_movie
 
@@ -65,16 +66,17 @@ def delete_actor(actor_id: int):
     db_actor = models.Actor.filter(models.Actor.id == actor_id).first()
     if db_actor is None:
         raise HTTPException(status_code=404, detail="Actor not found")
+    models.ActorMovie.delete().where(models.ActorMovie.actor_id == actor_id).execute()
     db_actor.delete_instance()
     return db_actor
 
-@app.post("/movies/{movie_id}/actors/{actor_id}", response_model=schemas.Actor)
-def add_actors_to_movie(movie_id: int, actor_id: int):
-    db_movie = get_movie(movie_id)
-    if db_movie is None:
+@app.post("/movies/{movie_id}/actor/{actor_id}", response_model=schemas.Actor)
+def add_actor_to_movie(movie_id: int, actor_id: int):
+    movie = models.Movie.filter(models.Movie.id == movie_id).first()
+    if movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
-    db_actor = get_actor(actor_id)
-    if db_actor is None:
+    actor = models.Actor.filter(models.Actor.id == actor_id).first()
+    if actor is None:
         raise HTTPException(status_code=404, detail="Actor not found")
-    db_movie.actors.append(db_actor)
-    return db_actor
+    movie.actors.add(actor)
+    return actor

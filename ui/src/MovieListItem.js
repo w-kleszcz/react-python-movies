@@ -9,8 +9,21 @@ export default function MovieListItem(props) {
                 directed by {props.movie.director}
                 {' '}
                 <a onClick={props.onDelete}>Delete</a>
+                <p>
+                    <strong>Actors: </strong>
+                    {props.movie.actors.length > 0 ? (
+                        props.movie.actors.map((actor, index) => (
+                            <span key={actor.id}>
+                                {actor.name} {actor.surname}
+                                {index < props.movie.actors.length - 1 ? ', ' : ''}
+                            </span>
+                        ))
+                    ) : (
+                        <span> No actors assigned</span>
+                    )}
+                </p>
             </div>
-            {props.movie.description}
+            <p>{props.movie.description}</p>
         </div>
     );
 }
